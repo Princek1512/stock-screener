@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Info</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <style>
+      .background-container {
+        min-height: calc(100vh - 70px);
+        padding: 20px;
+      }
+      
+      .welcome-container {
+        padding: 60px 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      
+      .description-text {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      .data-group p {
+        margin-bottom: 8px;
+      }
+      
+      .stock-chart {
+        height: 300px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      
+      .price-movement-up {
+        color: #28a745;
+      }
+      
+      .price-movement-down {
+        color: #dc3545;
+      }
+      
+      .current-price {
+        font-size: 24px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="d-flex justify-content-between align-items-center py-3 px-4 bg-light">
+      <a href="#" class="text-decoration-none">
+        <h3 class="m-0 text-dark">Stock Info</h3>
+      </a>
+      <div class="d-flex">
+        <input
+          id="stock-search"
+          class="form-control me-2"
+          type="search"
+          placeholder="Enter stock symbol (e.g. AAPL, MSFT)"
+          aria-label="Search"
+        />
+        <button type="button" id="search-button" class="btn btn-dark">
+          Search
+        </button>
+      </div>
+    </header>
+
+    <div class="background-container">
+      <div class="welcome-container text-center">
+        <h1 id="welcome-message">Welcome to Stock Info</h1>
+        <p id="search-prompt" class="mt-3">Search for a stock symbol to view detailed information</p>
+        <p class="text-muted small">Examples: AAPL (Apple), MSFT (Microsoft), AMZN (Amazon), GOOGL (Google), META (Meta), TSLA (Tesla)</p>
+      </div>
+
+      <div id="stock-data-container" class="container mt-4" style="display: none;">
+        <div class="card shadow">
+          <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h2 id="company-name" class="mb-0"></h2>
+            <div>
+              <span class="current-price me-2" id="current-price"></span>
+              <span id="price-change"></span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h4>Company Overview</h4>
+                <div class="data-group">
+                  <p><strong>Symbol:</strong> <span id="symbol"></span></p>
+                  <p><strong>Sector:</strong> <span id="sector"></span></p>
+                  <p><strong>Industry:</strong> <span id="industry"></span></p>
+                  <p><strong>Country:</strong> <span id="country"></span></p>
+                  <p><strong>Exchange:</strong> <span id="exchange"></span></p>
+                  <p><strong>Currency:</strong> <span id="currency"></span></p>
+                  <p><strong>Address:</strong> <span id="address"></span></p>
+                </div>
+                
+                <h4 class="mt-4">Description</h4>
+                <p id="description" class="description-text"></p>
+              </div>
+              
+              <div class="col-md-6">
+                <h4>Financial Metrics</h4>
+                <div class="data-group">
+                  <p><strong>Market Cap:</strong> <span id="market-cap"></span></p>
+                  <p><strong>PE Ratio:</strong> <span id="pe-ratio"></span></p>
+                  <p><strong>EPS:</strong> <span id="eps"></span></p>
+                  <p><strong>52 Week High:</strong> <span id="week-high"></span></p>
+                  <p><strong>52 Week Low:</strong> <span id="week-low"></span></p>
+                  <p><strong>Dividend Yield:</strong> <span id="dividend-yield"></span></p>
+                  <p><strong>Profit Margin:</strong> <span id="profit-margin"></span></p>
+                </div>
+                
+                <h4 class="mt-4">Performance Indicators</h4>
+                <div class="data-group">
+                  <p><strong>Beta:</strong> <span id="beta"></span></p>
+                  <p><strong>Quarterly Revenue Growth YOY:</strong> <span id="revenue-growth"></span></p>
+                  <p><strong>Quarterly Earnings Growth YOY:</strong> <span id="earnings-growth"></span></p>
+                  <p><strong>Analyst Target Price:</strong> <span id="target-price"></span></p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="stock-chart mt-4" id="price-chart">
+              <p class="text-muted">Stock price chart visualization placeholder</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Local stock data database (no API needed)
+      const stockDatabase = {
+        "AAPL": {
+          "Symbol": "AAPL",
+          "Name": "Apple Inc.",
+          "Description": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple TV, Apple Watch, Beats products, and HomePod. It also provides AppleCare support and cloud services; and operates various platforms, including the App Store that allow customers to discover and download applications and digital content, such as books, music, video, games, and podcasts.",
+          "Sector": "Technology",
+          "Industry": "Consumer Electronics",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "One Apple Park Way, Cupertino, CA 95014, USA",
+          "MarketCapitalization": "2783000000000",
+          "PERatio": "32.42",
+          "EPS": "5.61",
+          "52WeekHigh": "198.23",
+          "52WeekLow": "164.57",
+          "DividendYield": "0.0053",
+          "ProfitMargin": "0.2924",
+          "Beta": "1.28",
+          "QuarterlyRevenueGrowthYOY": "0.071",
+          "QuarterlyEarningsGrowthYOY": "0.093",
+          "AnalystTargetPrice": "210.45",
+          "CurrentPrice": "181.76",
+          "PriceChange": "+1.23",
+          "PriceChangePercent": "+0.68"
+        },
+        "MSFT": {
+          "Symbol": "MSFT",
+          "Name": "Microsoft Corporation",
+          "Description": "Microsoft Corporation develops, licenses, and supports software, services, devices, and solutions worldwide. The company operates in three segments: Productivity and Business Processes, Intelligent Cloud, and More Personal Computing. The company offers Office, Exchange, SharePoint, Microsoft Teams, Office 365 Security and Compliance, Microsoft Viva, and Skype for Business; Skype, Outlook.com, OneDrive, and LinkedIn; and Dynamics 365, a set of cloud-based and on-premises business solutions for organizations and enterprise divisions.",
+          "Sector": "Technology",
+          "Industry": "Software—Infrastructure",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "One Microsoft Way, Redmond, WA 98052, USA",
+          "MarketCapitalization": "3120000000000",
+          "PERatio": "39.73",
+          "EPS": "9.21",
+          "52WeekHigh": "424.56",
+          "52WeekLow": "309.45",
+          "DividendYield": "0.0071",
+          "ProfitMargin": "0.3518",
+          "Beta": "0.98",
+          "QuarterlyRevenueGrowthYOY": "0.146",
+          "QuarterlyEarningsGrowthYOY": "0.206",
+          "AnalystTargetPrice": "447.25",
+          "CurrentPrice": "365.93",
+          "PriceChange": "-2.31",
+          "PriceChangePercent": "-0.63"
+        },
+        "AMZN": {
+          "Symbol": "AMZN",
+          "Name": "Amazon.com, Inc.",
+          "Description": "Amazon.com, Inc. engages in the retail sale of consumer products, advertising, and subscription services through online and physical stores in North America and internationally. The company operates through three segments: North America, International, and Amazon Web Services (AWS). It also manufactures and sells electronic devices, including Kindle, Fire tablets, Fire TVs, Echo, Ring, Blink, and eero; and develops and produces media content. In addition, the company offers programs that enable sellers to sell their products in its stores.",
+          "Sector": "Consumer Cyclical",
+          "Industry": "Internet Retail",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "410 Terry Ave N, Seattle, WA 98109, USA",
+          "MarketCapitalization": "1820000000000",
+          "PERatio": "53.12",
+          "EPS": "3.45",
+          "52WeekHigh": "189.54",
+          "52WeekLow": "142.28",
+          "DividendYield": "0",
+          "ProfitMargin": "0.0612",
+          "Beta": "1.15",
+          "QuarterlyRevenueGrowthYOY": "0.112",
+          "QuarterlyEarningsGrowthYOY": "0.183",
+          "AnalystTargetPrice": "205.15",
+          "CurrentPrice": "183.26",
+          "PriceChange": "+4.78",
+          "PriceChangePercent": "+2.68"
+        },
+        "GOOGL": {
+          "Symbol": "GOOGL",
+          "Name": "Alphabet Inc.",
+          "Description": "Alphabet Inc. provides various products and platforms in the United States, Europe, the Middle East, Africa, the Asia-Pacific, Canada, and Latin America. It operates through Google Services, Google Cloud, and Other Bets segments. The Google Services segment offers products and services, including ads, Android, Chrome, hardware, Gmail, Google Drive, Google Maps, Google Photos, Google Play, Search, and YouTube. The Google Cloud segment offers infrastructure and data analytics platforms, collaboration tools, and other services for enterprise customers.",
+          "Sector": "Communication Services",
+          "Industry": "Internet Content & Information",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA",
+          "MarketCapitalization": "1950000000000",
+          "PERatio": "26.24",
+          "EPS": "5.42",
+          "52WeekHigh": "156.43",
+          "52WeekLow": "115.35",
+          "DividendYield": "0.0042",
+          "ProfitMargin": "0.2345",
+          "Beta": "1.05",
+          "QuarterlyRevenueGrowthYOY": "0.134",
+          "QuarterlyEarningsGrowthYOY": "0.147",
+          "AnalystTargetPrice": "167.75",
+          "CurrentPrice": "142.13",
+          "PriceChange": "+0.89",
+          "PriceChangePercent": "+0.63"
+        },
+        "META": {
+          "Symbol": "META",
+          "Name": "Meta Platforms, Inc.",
+          "Description": "Meta Platforms, Inc. engages in the development of products that enable people to connect and share with friends and family through mobile devices, personal computers, virtual reality headsets, and wearables worldwide. It operates in two segments, Family of Apps and Reality Labs. The Family of Apps segment offers Facebook, Instagram, Messenger, and WhatsApp. The Reality Labs segment provides augmented and virtual reality related products comprising consumer hardware, software, and content.",
+          "Sector": "Communication Services",
+          "Industry": "Internet Content & Information",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "1 Hacker Way, Menlo Park, CA 94025, USA",
+          "MarketCapitalization": "1190000000000",
+          "PERatio": "29.82",
+          "EPS": "15.14",
+          "52WeekHigh": "531.49",
+          "52WeekLow": "313.87",
+          "DividendYield": "0.0036",
+          "ProfitMargin": "0.2924",
+          "Beta": "1.32",
+          "QuarterlyRevenueGrowthYOY": "0.195",
+          "QuarterlyEarningsGrowthYOY": "0.268",
+          "AnalystTargetPrice": "550.30",
+          "CurrentPrice": "451.32",
+          "PriceChange": "-3.42",
+          "PriceChangePercent": "-0.75"
+        },
+        "TSLA": {
+          "Symbol": "TSLA",
+          "Name": "Tesla, Inc.",
+          "Description": "Tesla, Inc. designs, develops, manufactures, and sells electric vehicles and energy generation and storage systems in the United States, China, and internationally. The company operates in two segments, Automotive, and Energy Generation and Storage. The Automotive segment offers electric vehicles, as well as sells automotive regulatory credits; and non-warranty after-sales vehicle, used vehicles, body shop and parts, supercharging, retail merchandise, and vehicle insurance services.",
+          "Sector": "Consumer Cyclical",
+          "Industry": "Auto Manufacturers",
+          "Country": "United States",
+          "Exchange": "NASDAQ",
+          "Currency": "USD",
+          "Address": "13101 Harold Green Road, Austin, TX 78725, USA",
+          "MarketCapitalization": "548000000000",
+          "PERatio": "48.91",
+          "EPS": "3.57",
+          "52WeekHigh": "278.98",
+          "52WeekLow": "138.80",
+          "DividendYield": "0",
+          "ProfitMargin": "0.1523",
+          "Beta": "2.03",
+          "QuarterlyRevenueGrowthYOY": "-0.083",
+          "QuarterlyEarningsGrowthYOY": "-0.159",
+          "AnalystTargetPrice": "175.30",
+          "CurrentPrice": "174.63",
+          "PriceChange": "+6.27",
+          "PriceChangePercent": "+3.73"
+        }
+      };
+
+      const stockSearch = document.getElementById('stock-search');
+      const searchButton = document.getElementById('search-button');
+      const stockDataContainer = document.getElementById('stock-data-container');
+      const welcomeContainer = document.querySelector('.welcome-container');
+      const companyName = document.getElementById('company-name');
+      const currentPriceEl = document.getElementById('current-price');
+      const priceChangeEl = document.getElementById('price-change');
+      
+      // Company overview elements
+      const symbolEl = document.getElementById('symbol');
+      const sectorEl = document.getElementById('sector');
+      const industryEl = document.getElementById('industry');
+      const countryEl = document.getElementById('country');
+      const exchangeEl = document.getElementById('exchange');
+      const currencyEl = document.getElementById('currency');
+      const addressEl = document.getElementById('address');
+      const descriptionEl = document.getElementById('description');
+      
+      // Financial metrics elements
+      const marketCapEl = document.getElementById('market-cap');
+      const peRatioEl = document.getElementById('pe-ratio');
+      const epsEl = document.getElementById('eps');
+      const weekHighEl = document.getElementById('week-high');
+      const weekLowEl = document.getElementById('week-low');
+      const dividendYieldEl = document.getElementById('dividend-yield');
+      const profitMarginEl = document.getElementById('profit-margin');
+      
+      // Performance indicators elements
+      const betaEl = document.getElementById('beta');
+      const revenueGrowthEl = document.getElementById('revenue-growth');
+      const earningsGrowthEl = document.getElementById('earnings-growth');
+      const targetPriceEl = document.getElementById('target-price');
+      
+      // Allow search with Enter key
+      stockSearch.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          searchStock();
+        }
+      });
+      
+      // Search button click handler
+      searchButton.addEventListener('click', searchStock);
+      
+      function searchStock() {
+        const symbol = stockSearch.value.trim().toUpperCase();
+        
+        if (!symbol) {
+          alert('Please enter a stock symbol');
+          return;
+        }
+        
+        // Show loading state
+        companyName.textContent = 'Loading...';
+        stockDataContainer.style.display = 'block';
+        welcomeContainer.style.display = 'none';
+        
+        // Check if the stock exists in our database
+        if (stockDatabase[symbol]) {
+          updateStockData(stockDatabase[symbol]);
+        } else {
+          companyName.textContent = 'Error';
+          document.querySelector('.card-body').innerHTML = 
+            `<div class="alert alert-danger">
+              Stock symbol not found. Please try one of the available symbols: AAPL, MSFT, AMZN, GOOGL, META, TSLA
+            </div>`;
+        }
+      }
+      
+      function updateStockData(data) {
+        // Update company name and information
+        companyName.textContent = data.Name || 'N/A';
+        
+        // Update current price and change
+        currentPriceEl.textContent = `$${data.CurrentPrice}`;
+        
+        const priceChangeClass = parseFloat(data.PriceChange) >= 0 ? 'price-movement-up' : 'price-movement-down';
+        const priceChangeSign = parseFloat(data.PriceChange) >= 0 ? '+' : '';
+        priceChangeEl.innerHTML = `<span class="${priceChangeClass}">${priceChangeSign}${data.PriceChange} (${data.PriceChangePercent}%)</span>`;
+        
+        // Company overview
+        symbolEl.textContent = data.Symbol || 'N/A';
+        sectorEl.textContent = data.Sector || 'N/A';
+        industryEl.textContent = data.Industry || 'N/A';
+        countryEl.textContent = data.Country || 'N/A';
+        exchangeEl.textContent = data.Exchange || 'N/A';
+        currencyEl.textContent = data.Currency || 'N/A';
+        addressEl.textContent = data.Address || 'N/A';
+        descriptionEl.textContent = data.Description || 'No description available';
+        
+        // Financial metrics
+        marketCapEl.textContent = formatLargeNumber(data.MarketCapitalization) || 'N/A';
+        peRatioEl.textContent = data.PERatio || 'N/A';
+        epsEl.textContent = data.EPS || 'N/A';
+        weekHighEl.textContent = data['52WeekHigh'] ? `$${data['52WeekHigh']}` : 'N/A';
+        weekLowEl.textContent = data['52WeekLow'] ? `$${data['52WeekLow']}` : 'N/A';
+        dividendYieldEl.textContent = data.DividendYield ? `${(parseFloat(data.DividendYield) * 100).toFixed(2)}%` : 'N/A';
+        profitMarginEl.textContent = data.ProfitMargin ? `${(parseFloat(data.ProfitMargin) * 100).toFixed(2)}%` : 'N/A';
+        
+        // Performance indicators
+        betaEl.textContent = data.Beta || 'N/A';
+        revenueGrowthEl.textContent = data.QuarterlyRevenueGrowthYOY ? `${(parseFloat(data.QuarterlyRevenueGrowthYOY) * 100).toFixed(2)}%` : 'N/A';
+        earningsGrowthEl.textContent = data.QuarterlyEarningsGrowthYOY ? `${(parseFloat(data.QuarterlyEarningsGrowthYOY) * 100).toFixed(2)}%` : 'N/A';
+        targetPriceEl.textContent = data.AnalystTargetPrice ? `$${data.AnalystTargetPrice}` : 'N/A';
+      }
+      
+      function formatLargeNumber(num) {
+        if (!num) return null;
+        
+        num = parseFloat(num);
+        if (num >= 1e12) {
+          return `$${(num / 1e12).toFixed(2)}T`;
+        } else if (num >= 1e9) {
+          return `$${(num / 1e9).toFixed(2)}B`;
+        } else if (num >= 1e6) {
+          return `$${(num / 1e6).toFixed(2)}M`;
+        }
+        return `$${num.toLocaleString()}`;
+      }
+    </script>
+    
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
