@@ -109,7 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
   ];
   
   // Display random quote
-  function displayRandomQuote() {
+  function displayRandomQuote() 
+  {
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
     document.getElementById('quote').textContent = `"${quote.text}"`;
@@ -118,4 +119,5 @@ document.addEventListener('DOMContentLoaded', function() {
   
 
   displayRandomQuote();
+
   setInterval(displayRandomQuote, 10000);
